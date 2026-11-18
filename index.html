@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
-<title>유한대학교 국가근로 잔여 근로지 신청</title>
+<title>유한대학교 국가근로 희망 근로지 신청</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -39,6 +39,17 @@
   input::placeholder{ color:var(--gray-400); }
   input:focus{ border-color:var(--blue-600); box-shadow:0 0 0 3px var(--blue-100); }
   .field-error{ display:none; font-size:12px; color:var(--red); }
+
+  .consent{ margin-top:22px; background:#FFFBE6; border:1.5px solid #F0E3A8; border-radius:10px; padding:16px 16px 14px; }
+  .consent.invalid{ border-color:var(--red); }
+  .consent-title{ font-size:14px; font-weight:800; margin:0 0 10px; }
+  .consent-list{ list-style:none; margin:0 0 6px; padding:0; font-size:13.5px; color:var(--gray-600); line-height:1.85; }
+  .consent-list b{ color:var(--ink); font-weight:700; }
+  .consent-note{ font-size:13px; color:var(--gray-600); margin:0 0 14px; }
+  .consent-check{ display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px; font-weight:600; }
+  .consent-check input{ width:20px; height:20px; padding:0; border-radius:4px; accent-color:var(--blue-600); flex:none; cursor:pointer; }
+  .consent-error{ display:none; font-size:12px; color:var(--red); margin-top:8px; }
+  .consent.invalid .consent-error{ display:block; }
   .field.invalid input{ border-color:var(--red); }
   .field.invalid .field-error{ display:block; }
 
@@ -121,7 +132,7 @@
 <div class="page">
 
   <header>
-    <h1>유한대학교 국가근로<br>2026-동계방학 추가배정 신청</h1>
+     <h1>유한대학교 국가근로<br>2026-동계방학 추가배정 신청</h1>
     <div class="subtitle">2026학년도 동계방학 잔여 근로지 신청 접수</div>
     <p><b>잔여 근로지 중 희망 근로지 1곳을 선택한 뒤,<br> 근로 가능한 요일을 최대 2개까지 고르고 <br>요일별로 시간(종일)을 선택해 주세요.</b></p>
     <p>선착순으로 마감되며, 신청 가능한 근무지에 신청을 완료하면 접수된 것입니다.</p>
@@ -158,6 +169,18 @@
           <input id="phone" type="tel" inputmode="tel" placeholder="010-0000-0000" autocomplete="tel">
           <span class="field-error">연락처를 입력해 주세요.</span>
         </div>
+      </div>
+
+      <div class="consent" id="consentBox">
+        <div class="consent-title">개인정보 수집·이용 동의</div>
+        <ul class="consent-list">
+          <li>수집·이용 목적 : <b>국가근로장학생 선정 및 배정</b></li>
+          <li>수집 항목 : <b>성명, 학과, 학번, 연락처</b></li>
+          <li>보유·이용 기간 : <b>국가근로 활동 종료 후 1년</b></li>
+        </ul>
+        <p class="consent-note">동의하지 않으면 참여 신청할 수 없습니다.</p>
+        <label class="consent-check"><input type="checkbox" id="consent"><span>위 내용을 확인했으며 수집·이용에 동의합니다.</span></label>
+        <div class="consent-error">개인정보 수집·이용에 동의해야 신청할 수 있습니다.</div>
       </div>
     </section>
 
@@ -373,6 +396,8 @@
     return ok;
   }
 
+  $('consent').addEventListener('change', function(){ if (this.checked) $('consentBox').classList.remove('invalid'); });
+
   // 학번 입력 시 숫자 외 문자는 자동 제거
   $('sid').addEventListener('input', function(){
     this.value = this.value.replace(/\D/g, '').slice(0, 9);
@@ -412,19 +437,23 @@
     if (state.submitting) return;
 
     var v = [check('name'), check('dept'), check('sid'), check('phone')];
+    var consentOk = $('consent').checked;
+    $('consentBox').classList.toggle('invalid', !consentOk);
     var hasSel = !!state.wpName && state.picks.length > 0;
     if (!hasSel) showError('희망 근로지와 근로 가능 요일·시간을 선택해 주세요.'); else clearError();
-    if (v.indexOf(false) !== -1 || !hasSel){
+    if (v.indexOf(false) !== -1 || !consentOk || !hasSel){
       var problems = [];
       if (!v[0]) problems.push('성명을 입력해 주세요.');
       if (!v[1]) problems.push('학과를 입력해 주세요.');
       if (!v[2]) problems.push('학번은 숫자 9자리로 입력해 주세요.');
       if (!v[3]) problems.push('연락처를 입력해 주세요.');
+      if (!consentOk) problems.push('개인정보 수집·이용에 동의해 주세요.');
       if (!state.wpName) problems.push('희망 근로지를 선택해 주세요.');
       else if (!state.picks.length) problems.push('근로 가능 요일과 시간을 선택해 주세요.');
       showAlert('입력 내용을 확인해 주세요', '', problems, function(){
         var first = document.querySelector('.field.invalid input');
         if (first) first.focus();
+        else if (!consentOk) $('consentBox').scrollIntoView({ block:'center' });
         else { var t = document.querySelector('.selection-error.show') || (!state.wpName ? wpListEl : $('slotList')); if (t) t.scrollIntoView({ block:'center' }); }
       });
       return;
@@ -438,6 +467,7 @@
     var payload = {
       name: $('name').value.trim(), dept: $('dept').value.trim(),
       sid: $('sid').value.trim(), phone: $('phone').value.trim(),
+      consent: true,
       workplace: state.wpName,
       slots: state.picks.map(function(p){ return { day: p.day, time: p.time }; })
     };
@@ -481,6 +511,7 @@
   againBtn.addEventListener('click', function(){
     form.reset();
     document.querySelectorAll('.field.invalid').forEach(function(f){ f.classList.remove('invalid'); });
+    $('consentBox').classList.remove('invalid');
     clearError();
     state.wpName = null; state.picks = [];
     form.classList.remove('hide'); footerBar.classList.remove('hide'); successWrap.classList.remove('show');
