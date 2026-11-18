@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex, nofollow">
+<title>유한대학교 국가근로 신청 관리자</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --blue-700:#1B4FC4; --blue-600:#2A5FE0; --blue-100:#E8EFFD; --blue-50:#F4F7FE;
+    --ink:#161B2E; --gray-600:#5B6072; --gray-400:#8A8FA3; --gray-200:#E2E4EC; --gray-100:#F1F2F6;
+    --white:#FFFFFF; --red:#D3402C;
+  }
+  *{box-sizing:border-box;}
+  html,body{ background:var(--white); color:var(--ink); margin:0; font-family:'Noto Sans KR',sans-serif; -webkit-font-smoothing:antialiased; }
+  body{ min-height:100%; display:flex; justify-content:center; }
+  .page{ width:100%; max-width:960px; padding:0 20px 60px; }
+  .hide{ display:none !important; }
+
+  header{ padding:40px 0 22px; }
+  h1{ font-size:23px; line-height:1.4; font-weight:800; margin:0 0 8px; letter-spacing:-0.3px; }
+  .subtitle{ display:inline-block; color:var(--blue-700); background:var(--blue-100); font-weight:700; font-size:13px; padding:5px 11px; border-radius:6px; }
+  .header-rule{ height:3px; width:44px; background:var(--blue-600); border-radius:2px; margin-top:18px; }
+
+  .login-box{ max-width:360px; padding:28px 0 20px; }
+  .field{ display:flex; flex-direction:column; gap:7px; margin-bottom:14px; }
+  label{ font-size:13px; font-weight:600; }
+  input,select{ height:46px; border-radius:8px; border:1.5px solid var(--gray-200); background:var(--white); padding:0 13px; font-size:15px; font-family:inherit; color:var(--ink); outline:none; }
+  input:focus,select:focus{ border-color:var(--blue-600); box-shadow:0 0 0 3px var(--blue-100); }
+  .btn{ height:46px; padding:0 22px; border:none; border-radius:9px; background:var(--blue-600); color:var(--white); font-family:inherit; font-size:15px; font-weight:700; cursor:pointer; }
+  .btn:active{ background:var(--blue-700); }
+  .btn:disabled{ background:var(--gray-200); color:var(--gray-400); cursor:not-allowed; }
+  .btn.ghost{ background:var(--white); color:var(--ink); border:1.5px solid var(--gray-200); height:40px; padding:0 14px; font-size:13.5px; }
+  .btn.full{ width:100%; }
+  .msg{ font-size:13px; color:var(--red); margin-top:12px; min-height:18px; line-height:1.5; }
+
+  .toolbar{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; justify-content:space-between; padding:6px 0 18px; border-bottom:1px solid var(--gray-200); }
+  .toolbar-left{ display:flex; flex-direction:column; gap:3px; }
+  .who{ font-size:12.5px; color:var(--gray-400); }
+  .wp-title{ font-size:20px; font-weight:800; }
+  .cat-chip{ display:inline-block; vertical-align:middle; margin-left:8px; font-size:12px; font-weight:800; padding:3px 9px; border-radius:6px; background:var(--blue-100); color:var(--blue-700); }
+  .cat-chip.out{ background:#FFF1E0; color:#B25E00; }
+  .toolbar-right{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .toolbar-right select{ height:40px; font-size:14px; }
+
+  .stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:20px 0 6px; }
+  .stat{ background:var(--blue-50); border-radius:10px; padding:14px 16px; }
+  .stat-num{ font-size:22px; font-weight:800; color:var(--blue-700); }
+  .stat-label{ font-size:12.5px; color:var(--gray-600); margin-top:2px; }
+
+  .day{ padding:26px 0 8px; border-top:1px solid var(--gray-200); margin-top:20px; }
+  .day:first-of-type{ margin-top:12px; }
+  .day-head{ display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 14px; margin-bottom:12px; }
+  .day-name{ font-size:16px; font-weight:800; }
+  .day-meta{ font-size:12.5px; color:var(--gray-600); }
+  .chip{ display:inline-block; font-size:12px; font-weight:600; padding:3px 9px; border-radius:20px; background:var(--gray-100); color:var(--gray-600); margin-right:4px; }
+  .empty{ font-size:13px; color:var(--gray-400); padding:6px 2px 14px; }
+
+  .table-wrap{ overflow-x:auto; border:1.5px solid var(--gray-200); border-radius:10px; }
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; min-width:720px; }
+  th{ text-align:left; background:var(--gray-100); font-size:12.5px; color:var(--gray-600); font-weight:700; padding:10px 12px; white-space:nowrap; }
+  td{ padding:10px 12px; border-top:1px solid var(--gray-100); white-space:nowrap; }
+  td.time{ color:var(--blue-700); font-weight:700; }
+  .del-btn{ height:30px; padding:0 11px; border-radius:7px; border:1.5px solid var(--gray-200); background:var(--white); color:var(--red); font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer; }
+  .del-btn:active{ background:var(--gray-100); }
+  .del-btn:disabled{ color:var(--gray-400); cursor:not-allowed; }
+
+  @media (max-width:520px){ .stats{ grid-template-columns:1fr 1fr 1fr; } .stat{ padding:12px; } .stat-num{ font-size:19px; } h1{ font-size:20px; } }
+  @media print{ .toolbar-right,.btn,.del-btn,.col-del,header .subtitle{ display:none !important; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>유한대학교 국가근로<br>신청 현황 관리자</h1>
+    <div class="subtitle">근로지 담당자 전용</div>
+    <div class="header-rule"></div>
+  </header>
+
+  <!-- 로그인 -->
+  <div class="login-box" id="loginView">
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label for="adminId">아이디(근로지명)</label>
+        <input id="adminId" type="text" autocomplete="username" autocapitalize="off">
+      </div>
+      <div class="field">
+        <label for="adminPw">비밀번호</label>
+        <input id="adminPw" type="password" autocomplete="current-password">
+      </div>
+      <button class="btn full" id="loginBtn" type="submit">로그인</button>
+      <div class="msg" id="loginMsg"></div>
+    </form>
+  </div>
+
+  <!-- 신청 현황 -->
+  <div id="dashView" class="hide">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="who" id="whoEl"></div>
+        <div class="wp-title" id="wpTitle"></div>
+      </div>
+      <div class="toolbar-right">
+        <select id="wpSelect" class="hide" aria-label="근로지 선택"></select>
+        <button class="btn ghost" id="refreshBtn" type="button">새로고침</button>
+        <button class="btn ghost" id="csvBtn" type="button">CSV 다운로드</button>
+        <button class="btn ghost" id="logoutBtn" type="button">로그아웃</button>
+      </div>
+    </div>
+    <div class="msg" id="dashMsg"></div>
+    <div class="stats" id="stats"></div>
+    <div id="dayList"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // 신청 페이지와 같은 Apps Script 웹 앱 URL
+  var API_URL = 'https://script.google.com/macros/s/AKfycbyCOD-rv_hPLLj4HwEgXnh6B4K5YFDlV_aEefhVGl_c1X52Jk0CBL7M21799AZPw6yOYg/exec';
+  var LABELS = { '09:00~18:00': '종일', '09:00~13:00': '오전', '13:00~18:00': '오후' };
+
+  var $ = function(id){ return document.getElementById(id); };
+  var state = { token: null, adminName: '', workplace: null, workplaces: [], data: null };
+
+  function esc(s){ var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function labelOf(t){ return LABELS[t] || ''; }
+  function store(k, v){ try { if (v == null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); } catch(e){} }
+  function load(k){ try { return sessionStorage.getItem(k); } catch(e){ return null; } }
+
+  // text/plain으로 보내면 CORS preflight 없이 Apps Script가 요청을 받을 수 있습니다.
+  function post(payload){
+    return fetch(API_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
+      .then(function(r){ return r.json(); });
+  }
+
+  function showLogin(msg){
+    state.token = null; state.data = null; store('adm_token', null);
+    $('dashView').classList.add('hide'); $('loginView').classList.remove('hide');
+    $('loginMsg').textContent = msg || '';
+    $('adminPw').value = '';
+  }
+
+  function showDash(){
+    $('loginView').classList.add('hide'); $('dashView').classList.remove('hide');
+    $('whoEl').textContent = state.adminName + ' 님';
+    var sel = $('wpSelect');
+    if (state.workplaces.length > 1){
+      sel.innerHTML = state.workplaces.map(function(n){ return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
+      sel.value = state.workplace || state.workplaces[0];
+      sel.classList.remove('hide');
+    } else { sel.classList.add('hide'); }
+  }
+
+  function fetchData(){
+    if (!state.token) return;
+    $('dashMsg').textContent = '불러오는 중…'; $('dashMsg').style.color = 'var(--gray-400)';
+    post({ action:'adminData', token: state.token, workplace: state.workplace })
+      .then(function(res){
+        if (res.expired){ showLogin(res.message); return; }
+        if (!res.success) throw new Error(res.message || '불러오지 못했습니다.');
+        state.data = res; state.workplace = res.workplace; state.workplaces = res.workplaces || state.workplaces;
+        showDash(); render();
+        $('dashMsg').textContent = '';
+      })
+      .catch(function(err){
+        $('dashMsg').style.color = 'var(--red)';
+        $('dashMsg').textContent = '신청 현황을 불러오지 못했습니다. (' + (err.message || err) + ')';
+      });
+  }
+
+  function render(){
+    var d = state.data;
+    $('wpTitle').innerHTML = esc(d.workplace) + '<span class="cat-chip' + (d.category === '교외' ? ' out' : '') + '">' + esc(d.category || '교내') + '</span>';
+    $('wpSelect').value = d.workplace;
+
+    $('stats').innerHTML =
+      stat(d.studentCount, '신청 학생 수') + stat(d.applicants.length, '신청 건수(요일 기준)') + stat(d.days.length, '근무 요일 수');
+
+    var html = '';
+    d.days.forEach(function(day){
+      var list = [];
+      d.applicants.forEach(function(a, idx){ if (a.day === day.day) list.push({ a: a, idx: idx }); });
+      var amUsed = day.full + day.am, pmUsed = day.full + day.pm;
+      html += '<div class="day"><div class="day-head"><div class="day-name">' + esc(day.day) + '</div>' +
+        '<div class="day-meta">정원 ' + day.capacity + '명 · 신청 ' + list.length + '명</div>' +
+        '<div><span class="chip">종일 ' + day.full + '</span><span class="chip">오전 ' + day.am + '</span><span class="chip">오후 ' + day.pm + '</span>' +
+        '<span class="chip">오전 근무 ' + amUsed + '명</span><span class="chip">오후 근무 ' + pmUsed + '명</span></div></div>';
+      if (!list.length){
+        html += '<div class="empty">아직 신청자가 없습니다.</div>';
+      } else {
+        html += '<div class="table-wrap"><table><thead><tr><th>시간</th><th>성명</th><th>학과</th><th>학번</th><th>연락처</th><th>제출시각</th><th class="col-del">관리</th></tr></thead><tbody>';
+        list.forEach(function(item){
+          var a = item.a;
+          html += '<tr><td class="time">' + esc(labelOf(a.time) + ' ' + a.time) + '</td><td>' + esc(a.name) + '</td><td>' + esc(a.dept) +
+            '</td><td>' + esc(a.sid) + '</td><td>' + esc(a.phone) + '</td><td>' + esc(a.submittedAt) + '</td><td class="col-del"><button type="button" class="del-btn" data-idx="' + item.idx + '">취소</button></td></tr>';
+        });
+        html += '</tbody></table></div>';
+      }
+      html += '</div>';
+    });
+    if (!d.days.length) html = '<div class="empty">등록된 근무 요일이 없습니다.</div>';
+    $('dayList').innerHTML = html;
+  }
+
+  function stat(n, label){ return '<div class="stat"><div class="stat-num">' + n + '</div><div class="stat-label">' + label + '</div></div>'; }
+
+  // CSV (엑셀에서 한글/앞자리 0이 깨지지 않도록 BOM + ="값" 형식 사용)
+  function csvCell(v){ return '"' + String(v).replace(/"/g, '""') + '"'; }
+  function csvText(v){ return '"=""' + String(v).replace(/"/g, '""""') + '"""'; }
+  $('csvBtn').addEventListener('click', function(){
+    if (!state.data) return;
+    var rows = [['근로지','요일','시간구분','시간','성명','학과','학번','연락처','제출시각']];
+    state.data.applicants.forEach(function(a){
+      rows.push([state.data.workplace, a.day, labelOf(a.time), a.time, a.name, a.dept, a.sid, a.phone, a.submittedAt]);
+    });
+    var csv = rows.map(function(r, i){
+      return r.map(function(c, j){ return (i > 0 && (j === 6 || j === 7)) ? csvText(c) : csvCell(c); }).join(',');
+    }).join('\r\n');
+    var blob = new Blob(['\uFEFF' + csv], { type:'text/csv;charset=utf-8;' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = state.data.workplace + '_신청자.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+  });
+
+  $('loginForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var id = $('adminId').value.trim(), pw = $('adminPw').value;
+    if (!id || !pw){ $('loginMsg').textContent = '아이디와 비밀번호를 입력해 주세요.'; return; }
+    var btn = $('loginBtn'); btn.disabled = true; btn.textContent = '확인 중…'; $('loginMsg').textContent = '';
+    post({ action:'adminLogin', id: id, password: pw })
+      .then(function(res){
+        if (!res.success) throw new Error(res.message || '로그인에 실패했습니다.');
+        state.token = res.token; state.adminName = res.adminName; state.workplaces = res.workplaces || [];
+        state.workplace = state.workplaces[0] || null;
+        store('adm_token', res.token); store('adm_name', res.adminName); store('adm_wps', JSON.stringify(state.workplaces));
+        $('adminPw').value = '';
+        showDash(); fetchData();
+      })
+      .catch(function(err){ $('loginMsg').textContent = err.message || '로그인에 실패했습니다.'; })
+      .then(function(){ btn.disabled = false; btn.textContent = '로그인'; });
+  });
+
+  // 신청 취소(삭제): 표의 '취소' 버튼 (이벤트 위임)
+  $('dayList').addEventListener('click', function(e){
+    var btn = e.target.closest ? e.target.closest('.del-btn') : null;
+    if (!btn || !state.data) return;
+    var a = state.data.applicants[Number(btn.getAttribute('data-idx'))];
+    if (!a) return;
+    var ok = window.confirm(
+      a.name + ' (' + a.sid + ')\n' + a.day + ' ' + labelOf(a.time) + ' ' + a.time + ' 신청을 취소할까요?\n\n취소하면 되돌릴 수 없고, 해당 자리는 다시 신청 가능해집니다.');
+    if (!ok) return;
+    btn.disabled = true; btn.textContent = '처리 중…';
+    post({ action:'adminDelete', token: state.token, workplace: state.data.workplace, sid: a.sid, day: a.day, time: a.time })
+      .then(function(res){
+        if (res.expired){ showLogin(res.message); return; }
+        if (!res.success) throw new Error(res.message || '취소하지 못했습니다.');
+        fetchData();
+      })
+      .catch(function(err){
+        window.alert(err.message || '취소하지 못했습니다.');
+        fetchData();
+      });
+  });
+
+  $('wpSelect').addEventListener('change', function(){ state.workplace = this.value; fetchData(); });
+  $('refreshBtn').addEventListener('click', fetchData);
+  $('logoutBtn').addEventListener('click', function(){ store('adm_token', null); store('adm_name', null); store('adm_wps', null); showLogin(''); });
+
+  // 새로고침해도 로그인 유지 (탭을 닫으면 해제, 서버 토큰은 6시간 후 만료)
+  var saved = load('adm_token');
+  if (saved){
+    state.token = saved; state.adminName = load('adm_name') || '';
+    try { state.workplaces = JSON.parse(load('adm_wps') || '[]'); } catch(e){ state.workplaces = []; }
+    state.workplace = state.workplaces[0] || null;
+    fetchData();
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>유한대학교 국가근로 희망 근로지 신청</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --blue-700:#1B4FC4; --blue-600:#2A5FE0; --blue-100:#E8EFFD; --blue-50:#F4F7FE;
+    --ink:#161B2E; --gray-600:#5B6072; --gray-400:#8A8FA3; --gray-200:#E2E4EC; --gray-100:#F1F2F6;
+    --white:#FFFFFF; --red:#D3402C;
+  }
+  *{box-sizing:border-box;}
+  html,body{ background:var(--white); color:var(--ink); margin:0; font-family:'Noto Sans KR',sans-serif; -webkit-font-smoothing:antialiased; }
+  body{ min-height:100%; display:flex; justify-content:center; }
+  .page{ width:100%; max-width:640px; padding:0 20px 140px; }
+
+  header{ padding:44px 0 28px; }
+  h1{ font-size:25px; line-height:1.4; font-weight:800; margin:0 0 10px; letter-spacing:-0.3px; }
+  .subtitle{ display:inline-block; color:var(--blue-700); background:var(--blue-100); font-weight:700; font-size:14px; padding:6px 12px; border-radius:6px; margin:0 0 14px; }
+  header p{ margin:0 0 6px; color:var(--gray-600); font-size:14.5px; line-height:1.7; }
+  .header-rule{ height:3px; width:44px; background:var(--blue-600); border-radius:2px; margin-top:20px; }
+
+  section{ padding:30px 0; border-top:1px solid var(--gray-200); }
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:18px; }
+  .section-title{ font-size:16px; font-weight:700; }
+  .section-sub{ font-size:12.5px; color:var(--gray-400); }
+
+  .field-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .field{ display:flex; flex-direction:column; gap:7px; }
+  label{ font-size:13px; font-weight:600; }
+  label .req{ color:var(--blue-600); margin-left:2px; }
+  input{ height:46px; border-radius:8px; border:1.5px solid var(--gray-200); background:var(--white); padding:0 13px; font-size:15px; font-family:inherit; color:var(--ink); outline:none; }
+  input::placeholder{ color:var(--gray-400); }
+  input:focus{ border-color:var(--blue-600); box-shadow:0 0 0 3px var(--blue-100); }
+  .field-error{ display:none; font-size:12px; color:var(--red); }
+  .field.invalid input{ border-color:var(--red); }
+  .field.invalid .field-error{ display:block; }
+
+  .slot-list{ display:flex; flex-direction:column; gap:9px; min-height:60px; }
+  .slot{ display:flex; align-items:center; justify-content:space-between; width:100%; text-align:left; border:1.5px solid var(--gray-200); background:var(--white); border-radius:10px; padding:13px 15px; font-family:inherit; cursor:pointer; color:var(--ink); }
+  .slot-left{ display:flex; flex-direction:row; flex-wrap:wrap; align-items:baseline; gap:2px 10px; min-width:0; }
+  .slot-round{ font-size:14px; font-weight:700; }
+  .slot-time{ font-size:12.5px; color:var(--gray-400); }
+  .slot-right{ display:flex; align-items:center; gap:10px; }
+  .slot-seats{ font-size:12.5px; font-weight:600; color:var(--blue-700); white-space:nowrap; }
+  .slot-seats.low{ color:var(--red); }
+  .slot-radio{ width:20px; height:20px; border-radius:50%; border:2px solid var(--gray-200); flex:none; position:relative; }
+  .slot-check{ width:20px; height:20px; border-radius:6px; border:2px solid var(--gray-200); flex:none; position:relative; }
+  .slot[data-selected="true"]{ border-color:var(--blue-600); background:var(--blue-50); }
+  .slot[data-selected="true"] .slot-radio{ border-color:var(--blue-600); }
+  .slot[data-selected="true"] .slot-radio::after{ content:""; position:absolute; inset:3px; border-radius:50%; background:var(--blue-600); }
+  .slot[data-selected="true"] .slot-check{ border-color:var(--blue-600); background:var(--blue-600); }
+  .slot[data-selected="true"] .slot-check::after{ content:""; position:absolute; left:5px; top:1px; width:5px; height:10px; border:solid var(--white); border-width:0 2.2px 2.2px 0; transform:rotate(45deg); }
+  .slot[data-full="true"]{ cursor:not-allowed; background:var(--gray-100); }
+  .slot[data-full="true"] .slot-round,.slot[data-full="true"] .slot-time,.slot[data-full="true"] .slot-seats{ color:var(--gray-400); }
+  .slot[data-full="true"] .slot-radio,.slot[data-full="true"] .slot-check{ display:none; }
+
+  .group-head{ display:flex; align-items:center; gap:8px; margin:14px 0 2px; }
+  .group-head:first-child{ margin-top:0; }
+  .group-badge{ font-size:12.5px; font-weight:800; padding:4px 10px; border-radius:6px; }
+  .group-badge.in{ background:var(--blue-100); color:var(--blue-700); }
+  .group-badge.out{ background:#FFF1E0; color:#B25E00; }
+  .group-count{ font-size:12.5px; color:var(--gray-400); }
+  .slot-panel{ margin:2px 0 6px 8px; padding:6px 0 4px 16px; border-left:3px solid var(--blue-100); }
+  .panel-head{ display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:2px 10px; margin:6px 0 14px; }
+  .panel-title{ font-size:14.5px; font-weight:700; }
+  .day-block{ margin-bottom:18px; }
+  .day-block:last-child{ margin-bottom:0; }
+  .day-title{ font-size:14px; font-weight:800; margin:0 0 8px 2px; }
+  .day-block.has-pick .day-title{ color:var(--blue-700); }
+
+  .selection-error{ display:none; font-size:12.5px; color:var(--red); margin-top:10px; line-height:1.5; }
+  .selection-error.show{ display:block; }
+  .state-msg{ font-size:13px; color:var(--gray-400); padding:6px 2px; line-height:1.6; }
+  .state-msg.error{ color:var(--red); }
+
+  .footer-bar{ position:fixed; left:0; right:0; bottom:0; background:var(--white); border-top:1px solid var(--gray-200); padding:14px 20px calc(14px + env(safe-area-inset-bottom,0px)); display:flex; justify-content:center; }
+  .footer-bar.hide{ display:none; }
+  .footer-inner{ width:100%; max-width:640px; display:flex; align-items:center; gap:14px; }
+  .footer-summary{ flex:1; min-width:0; font-size:12.5px; color:var(--gray-600); line-height:1.5; }
+  .footer-summary strong{ display:block; font-size:13.5px; color:var(--ink); font-weight:700; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .footer-summary span{ display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  button.submit{ flex:none; height:48px; padding:0 24px; border:none; border-radius:9px; background:var(--blue-600); color:var(--white); font-family:inherit; font-size:15px; font-weight:700; cursor:pointer; }
+  button.submit:active{ background:var(--blue-700); }
+  button.submit:disabled{ background:var(--gray-200); color:var(--gray-400); cursor:not-allowed; }
+
+  .success-wrap{ display:none; padding:60px 0 40px; text-align:center; }
+  .success-wrap.show{ display:block; }
+  .success-mark{ width:52px; height:52px; border-radius:50%; background:var(--blue-100); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; }
+  .success-mark svg{ width:22px; height:22px; }
+  .success-wrap h2{ font-size:20px; font-weight:800; margin:0 0 10px; }
+  .success-wrap p{ font-size:14px; color:var(--gray-600); margin:0 0 28px; line-height:1.7; }
+  .receipt{ text-align:left; border:1.5px solid var(--gray-200); border-radius:12px; padding:14px 22px; margin-bottom:24px; }
+  .receipt-row{ display:flex; justify-content:space-between; gap:16px; padding:9px 0; border-bottom:1px solid var(--gray-100); font-size:13.5px; }
+  .receipt-row:last-child{ border-bottom:none; }
+  .receipt-row span:first-child{ color:var(--gray-400); flex:none; }
+  .receipt-row span:last-child{ font-weight:600; text-align:right; }
+  .again-btn{ height:46px; padding:0 22px; border-radius:9px; border:1.5px solid var(--gray-200); background:var(--white); color:var(--ink); font-family:inherit; font-size:14px; font-weight:700; cursor:pointer; }
+  .hide{ display:none; }
+
+  .modal-overlay{ position:fixed; inset:0; background:rgba(22,27,46,0.5); display:none; align-items:center; justify-content:center; padding:20px; z-index:50; }
+  .modal-overlay.show{ display:flex; }
+  .modal{ width:100%; max-width:380px; background:var(--white); border-radius:14px; padding:26px 22px 20px; box-shadow:0 12px 40px rgba(22,27,46,0.25); }
+  .modal-icon{ width:40px; height:40px; border-radius:50%; background:#FBE9E6; color:var(--red); font-weight:800; font-size:20px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+  .modal-title{ font-size:17px; font-weight:800; margin:0 0 8px; }
+  .modal-body{ font-size:14px; color:var(--gray-600); line-height:1.7; white-space:pre-line; margin:0 0 20px; }
+  .modal-body ul{ margin:0; padding-left:18px; }
+  .modal-btn{ width:100%; height:46px; border:none; border-radius:9px; background:var(--blue-600); color:var(--white); font-family:inherit; font-size:15px; font-weight:700; cursor:pointer; }
+  .modal-btn:active{ background:var(--blue-700); }
+
+  @media (max-width:420px){ .field-grid{ grid-template-columns:1fr; } h1{ font-size:21px; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>유한대학교 국가근로<br>희망 근로지 신청</h1>
+    <div class="subtitle">2027학년도 1학기 국가근로 희망 근로지 신청 접수</div>
+    <p><b>희망 근로지 1곳을 선택한 뒤,<br> 근로 가능한 요일을 최대 2개까지 고르고 <br>요일별로 시간(종일 / 오전 / 오후)을 선택해 주세요.</b></p>
+    <p>선착순으로 마감되며, 신청 가능한 근무지에 신청을 완료하면 접수된 것입니다.</p>
+    <p>신청이 완료된 학생은 담당부서에서 면접 후 최종 선발이 결정 됩니다.</p>
+    <p>면접 후 탈락자는 다시 신청하여야 합니다.</p>
+    <p>탈락자만 다시 신청 가능합니다.</p>
+    <p>(신청 취소 불가능)</p>
+    <p>고민하고 신청하세요. <br>탈락 후 신청 가능한 자리가 없을 수 있습니다.</p>
+    <div class="header-rule"></div>
+  </header>
+
+  <form id="workForm" novalidate>
+    <section>
+      <div class="section-head"><div class="section-title">신청자 정보</div></div>
+      <div class="field-grid">
+        <div class="field" data-field="name">
+          <label for="name">성명<span class="req">*</span></label>
+          <input id="name" type="text" placeholder="홍길동" autocomplete="name">
+          <span class="field-error">성명을 입력해 주세요.</span>
+        </div>
+        <div class="field" data-field="dept">
+          <label for="dept">학과<span class="req">*</span></label>
+          <input id="dept" type="text" placeholder="예: 간호학과">
+          <span class="field-error">학과를 입력해 주세요.</span>
+        </div>
+        <div class="field" data-field="sid">
+          <label for="sid">학번<span class="req">*</span></label>
+          <input id="sid" type="text" inputmode="numeric" maxlength="9" placeholder="숫자 9자리 (예: 202412345)">
+          <span class="field-error">학번은 숫자 9자리로 입력해 주세요.</span>
+        </div>
+        <div class="field" data-field="phone">
+          <label for="phone">연락처<span class="req">*</span></label>
+          <input id="phone" type="tel" inputmode="tel" placeholder="010-0000-0000" autocomplete="tel">
+          <span class="field-error">연락처를 입력해 주세요.</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div class="section-title">희망 근로지 선택</div>
+        <div class="section-sub">1곳 선택</div>
+      </div>
+      <div class="slot-list" id="workplaceList"><div class="state-msg">근로지 목록을 불러오는 중입니다…</div></div>
+    </section>
+
+    <!-- 근로지를 선택하면 JS가 이 패널을 선택한 근로지 카드 바로 아래로 옮깁니다 -->
+    <div class="hide" id="panelHome">
+      <div class="slot-panel" id="slotPanel">
+        <div class="panel-head">
+          <div class="panel-title">근로 가능 요일·시간 선택</div>
+          <div class="section-sub">요일별 1개 · 최대 2개 요일</div>
+        </div>
+        <div class="slot-list" id="slotList"></div>
+        <div class="selection-error" id="selectionError"></div>
+      </div>
+    </div>
+  </form>
+
+  <div class="success-wrap" id="successWrap">
+    <div class="success-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#2A5FE0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h2>신청이 접수되었습니다</h2>
+    <p>신청하신 내용은 아래와 같습니다. 이후 일정은 담당 부서에서 안내드릴 예정입니다.</p>
+    <div class="receipt" id="receipt"></div>
+    <button class="again-btn" id="againBtn" type="button">새 신청서 작성하기</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" role="alertdialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalBody">
+  <div class="modal">
+    <div class="modal-icon">!</div>
+    <h3 class="modal-title" id="modalTitle"></h3>
+    <div class="modal-body" id="modalBody"></div>
+    <button type="button" class="modal-btn" id="modalOk">확인</button>
+  </div>
+</div>
+
+<div class="footer-bar" id="footerBar">
+  <div class="footer-inner">
+    <div class="footer-summary" id="footerSummary"></div>
+    <button class="submit" id="submitBtn" type="submit" form="workForm" disabled>신청서 제출</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ★ Apps Script 웹 앱 배포 URL
+  var API_URL = 'https://script.google.com/macros/s/AKfycbyCOD-rv_hPLLj4HwEgXnh6B4K5YFDlV_aEefhVGl_c1X52Jk0CBL7M21799AZPw6yOYg/exec';
+  var MAX_PICKS = 2;
+
+  // workplaces: [{name, totalRemaining, slots:[{day,time,capacity,booked,remaining}]}]
+  // picks: [{day,time}]
+  var state = { workplaces: [], wpName: null, picks: [], submitting: false };
+
+  var $ = function(id){ return document.getElementById(id); };
+  var wpListEl = $('workplaceList'), slotListEl = $('slotList');
+  var footerSummaryEl = $('footerSummary'), submitBtn = $('submitBtn'), selectionErrorEl = $('selectionError');
+  var form = $('workForm'), footerBar = $('footerBar'), successWrap = $('successWrap');
+  var receiptEl = $('receipt'), againBtn = $('againBtn');
+
+  function esc(s){ var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function apiReady(){ return API_URL && API_URL.indexOf('YOUR_') !== 0; }
+  function findWp(name){ return state.workplaces.filter(function(w){ return w.name === name; })[0]; }
+  function isPicked(day, time){ return state.picks.some(function(p){ return p.day === day && p.time === time; }); }
+  var modalOverlay = $('modalOverlay'), modalAfter = null;
+  function showAlert(title, msg, items, after){
+    $('modalTitle').textContent = title;
+    var body = $('modalBody');
+    body.textContent = msg || '';
+    if (items && items.length){
+      var ul = document.createElement('ul');
+      items.forEach(function(t){ var li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
+      body.appendChild(ul);
+    }
+    modalAfter = after || null;
+    modalOverlay.classList.add('show');
+    $('modalOk').focus();
+  }
+  function closeAlert(){
+    modalOverlay.classList.remove('show');
+    var fn = modalAfter; modalAfter = null;
+    if (fn) fn();
+  }
+  $('modalOk').addEventListener('click', closeAlert);
+  modalOverlay.addEventListener('click', function(e){ if (e.target === modalOverlay) closeAlert(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && modalOverlay.classList.contains('show')) closeAlert(); });
+
+  function showError(msg){ selectionErrorEl.textContent = msg; selectionErrorEl.classList.add('show'); }
+  function clearError(){ selectionErrorEl.classList.remove('show'); }
+
+  var LABELS = { '09:00~18:00': '종일', '09:00~13:00': '오전', '13:00~18:00': '오후' };
+  function labelOf(t){ return LABELS[t] || ''; }
+  function pickOf(day){ return state.picks.filter(function(p){ return p.day === day; })[0]; }
+
+  // 자리가 남아 있는 요일을 '월/화/수' 형태로 표시
+  function openDays(w){
+    return w.days.filter(function(d){
+      return d.options.some(function(o){ return o.remaining > 0; });
+    }).map(function(d){ return d.day === '협의' ? '협의' : d.day.charAt(0); }).join('/');
+  }
+
+  function buildWorkplaces(){
+    // 목록을 다시 그리기 전에 패널을 안전한 곳으로 옮겨 둠
+    $('panelHome').appendChild($('slotPanel'));
+    wpListEl.innerHTML = '';
+    ['교내', '교외'].forEach(function(cat){
+    var group = state.workplaces.filter(function(w){ return (w.category || '교내') === cat; });
+    if (!group.length) return;
+    var head = document.createElement('div');
+    head.className = 'group-head';
+    head.innerHTML = '<span class="group-badge ' + (cat === '교외' ? 'out' : 'in') + '">' + cat + ' 근로지</span><span class="group-count">' + group.length + '곳</span>';
+    wpListEl.appendChild(head);
+    group.forEach(function(w){
+      var full = w.availableDays <= 0;
+      var sel = state.wpName === w.name;
+      var row = document.createElement('button');
+      row.type = 'button'; row.className = 'slot';
+      row.setAttribute('data-full', full ? 'true' : 'false');
+      row.setAttribute('data-selected', sel ? 'true' : 'false');
+      row.innerHTML =
+        '<div class="slot-left"><div class="slot-round">' + esc(w.name) + '</div></div>' +
+        '<div class="slot-right"><div class="slot-seats">' +
+        (full ? '마감' : '신청 가능 ' + openDays(w)) + '</div><div class="slot-radio"></div></div>';
+      if (!full){
+        row.addEventListener('click', function(){
+          if (state.wpName !== w.name){ state.wpName = w.name; state.picks = []; }
+          clearError();
+          buildWorkplaces(); buildSlots(); updateFooter();
+        });
+      }
+      wpListEl.appendChild(row);
+      if (sel) wpListEl.appendChild($('slotPanel')); // 선택한 근로지 바로 아래에 요일·시간 선택 표시
+    });
+    });
+  }
+
+  function buildSlots(){
+    slotListEl.innerHTML = '';
+    var wp = findWp(state.wpName);
+    if (!wp){
+      slotListEl.innerHTML = '<div class="state-msg">근로지를 먼저 선택해 주세요.</div>';
+      return;
+    }
+    wp.days.forEach(function(d){
+      var block = document.createElement('div');
+      block.className = 'day-block' + (pickOf(d.day) ? ' has-pick' : '');
+      block.innerHTML = '<div class="day-title">' + esc(d.day) + '</div>';
+      var list = document.createElement('div');
+      list.className = 'slot-list';
+      d.options.forEach(function(o){
+        var full = o.remaining <= 0;
+        var sel = isPicked(d.day, o.time);
+        var row = document.createElement('button');
+        row.type = 'button'; row.className = 'slot';
+        row.setAttribute('data-full', full ? 'true' : 'false');
+        row.setAttribute('data-selected', sel ? 'true' : 'false');
+        row.innerHTML =
+          '<div class="slot-left"><div class="slot-round">' + esc(labelOf(o.time)) + '</div><div class="slot-time">' + esc(o.time) + '</div></div>' +
+          '<div class="slot-right"><div class="slot-seats' + (o.remaining > 0 && o.remaining <= 2 ? ' low' : '') + '">' +
+          (full ? '마감' : '잔여 ' + o.remaining + '석') + '</div><div class="slot-radio"></div></div>';
+        if (!full){
+          row.addEventListener('click', function(){ togglePick(d.day, o.time); });
+        }
+        list.appendChild(row);
+      });
+      block.appendChild(list);
+      slotListEl.appendChild(block);
+    });
+  }
+
+  function togglePick(day, time){
+    clearError();
+    if (isPicked(day, time)){
+      state.picks = state.picks.filter(function(p){ return !(p.day === day && p.time === time); });
+    } else {
+      var same = pickOf(day);
+      if (same){
+        // 같은 요일이면 시간만 바꿔서 선택
+        state.picks = state.picks.map(function(p){ return p === same ? { day: day, time: time } : p; });
+      } else if (state.picks.length >= MAX_PICKS){
+        showAlert('요일은 최대 ' + MAX_PICKS + '개까지 선택할 수 있습니다', '다른 요일을 선택하려면 이미 선택한 요일의 선택을 먼저 해제해 주세요.');
+        return;
+      } else {
+        state.picks.push({ day: day, time: time });
+      }
+    }
+    buildSlots(); updateFooter();
+  }
+
+  function updateFooter(){
+    if (!state.wpName){
+      footerSummaryEl.innerHTML = '<strong>선택된 근로지 없음</strong><span>근로지와 요일·시간을 선택해 주세요</span>';
+      submitBtn.disabled = true;
+    } else if (!state.picks.length){
+      footerSummaryEl.innerHTML = '<strong>' + esc(state.wpName) + '</strong><span>요일과 시간을 1~' + MAX_PICKS + '개 요일 선택해 주세요</span>';
+      submitBtn.disabled = true;
+    } else {
+      var txt = state.picks.map(function(p){ return p.day.charAt(0) + ' ' + labelOf(p.time) + '(' + p.time + ')'; }).join(' · ');
+      footerSummaryEl.innerHTML = '<strong>' + esc(state.wpName) + ' (' + state.picks.length + '개 요일)</strong><span>' + esc(txt) + '</span>';
+      submitBtn.disabled = state.submitting;
+    }
+  }
+
+  function check(id){
+    var val = $(id).value.trim();
+    var ok = id === 'sid' ? /^\d{9}$/.test(val) : val.length > 0;
+    document.querySelector('[data-field="' + id + '"]').classList.toggle('invalid', !ok);
+    return ok;
+  }
+
+  // 학번 입력 시 숫자 외 문자는 자동 제거
+  $('sid').addEventListener('input', function(){
+    this.value = this.value.replace(/\D/g, '').slice(0, 9);
+  });
+
+  function showLoadError(msg){
+    wpListEl.innerHTML = '<div class="state-msg error">' + esc(msg) + '</div>';
+  }
+
+  function loadSchedule(){
+    if (!apiReady()){
+      showLoadError('index.html 상단의 API_URL에 Apps Script 웹 앱 URL을 입력해 주세요.');
+      return;
+    }
+    fetch(API_URL + '?action=schedule')
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if (!res.success) throw new Error(res.message || '근로지 목록을 불러오지 못했습니다.');
+        state.workplaces = res.workplaces || [];
+        if (!state.workplaces.length) throw new Error('등록된 근로지가 없습니다. 관리자에게 문의해 주세요.');
+
+        // 선택해 둔 근로지/시간이 그새 사라졌거나 마감되었다면 정리
+        var wp = findWp(state.wpName);
+        if (!wp || wp.availableDays <= 0){ state.wpName = null; state.picks = []; }
+        else {
+          state.picks = state.picks.filter(function(p){
+            return wp.days.some(function(d){ return d.day === p.day && d.options.some(function(o){ return o.time === p.time && o.remaining > 0; }); });
+          });
+        }
+        buildWorkplaces(); buildSlots(); updateFooter();
+      })
+      .catch(function(err){ showLoadError('근로지 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요. (' + (err.message || err) + ')'); });
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if (state.submitting) return;
+
+    var v = [check('name'), check('dept'), check('sid'), check('phone')];
+    var hasSel = !!state.wpName && state.picks.length > 0;
+    if (!hasSel) showError('희망 근로지와 근로 가능 요일·시간을 선택해 주세요.'); else clearError();
+    if (v.indexOf(false) !== -1 || !hasSel){
+      var problems = [];
+      if (!v[0]) problems.push('성명을 입력해 주세요.');
+      if (!v[1]) problems.push('학과를 입력해 주세요.');
+      if (!v[2]) problems.push('학번은 숫자 9자리로 입력해 주세요.');
+      if (!v[3]) problems.push('연락처를 입력해 주세요.');
+      if (!state.wpName) problems.push('희망 근로지를 선택해 주세요.');
+      else if (!state.picks.length) problems.push('근로 가능 요일과 시간을 선택해 주세요.');
+      showAlert('입력 내용을 확인해 주세요', '', problems, function(){
+        var first = document.querySelector('.field.invalid input');
+        if (first) first.focus();
+        else { var t = document.querySelector('.selection-error.show') || (!state.wpName ? wpListEl : $('slotList')); if (t) t.scrollIntoView({ block:'center' }); }
+      });
+      return;
+    }
+    if (!apiReady()){
+      showError('API_URL이 설정되지 않았습니다.');
+      return;
+    }
+
+    state.submitting = true; submitBtn.disabled = true; submitBtn.textContent = '제출 중…';
+    var payload = {
+      name: $('name').value.trim(), dept: $('dept').value.trim(),
+      sid: $('sid').value.trim(), phone: $('phone').value.trim(),
+      workplace: state.wpName,
+      slots: state.picks.map(function(p){ return { day: p.day, time: p.time }; })
+    };
+
+    // text/plain으로 보내면 CORS preflight 없이 Apps Script가 요청을 받을 수 있습니다.
+    fetch(API_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if (!res.success){ var er = new Error(res.message || '제출 중 오류가 발생했습니다.'); er.code = res.code; throw er; }
+        function row(l, val){ return '<div class="receipt-row"><span>' + l + '</span><span>' + esc(val) + '</span></div>'; }
+        var html = row('성명', payload.name) + row('학과', payload.dept) + row('학번', payload.sid) +
+          row('연락처', payload.phone) + row('근로지', res.workplace);
+        (res.slots || []).forEach(function(s, i){ html += row('근로 요일·시간 ' + (i + 1), s.day + ' ' + labelOf(s.time) + ' ' + s.time); });
+        receiptEl.innerHTML = html;
+        form.classList.add('hide'); footerBar.classList.add('hide'); successWrap.classList.add('show');
+        window.scrollTo(0, 0);
+      })
+      .catch(function(err){
+        var title = '신청 중 오류가 발생했습니다', msg = err.message || '잠시 후 다시 시도해 주세요.';
+        var after = null;
+        if (err.code === 'DUPLICATE'){
+          title = '이미 신청된 학번입니다';
+          after = function(){ var f = document.querySelector('[data-field="sid"]'); f.classList.add('invalid'); $('sid').focus(); };
+        } else if (err.code === 'FULL'){
+          title = '선택하신 근무가 마감되었습니다';
+          after = function(){ var t = $('slotList'); if (t) t.scrollIntoView({ block:'center' }); };
+        } else if (err instanceof TypeError || /JSON|fetch|network/i.test(String(err.message))){
+          title = '네트워크 오류';
+          msg = '인터넷 연결을 확인한 뒤 다시 시도해 주세요. 계속 문제가 생기면 담당 부서로 문의해 주세요.';
+        } else if (/학번은 숫자/.test(msg)){
+          title = '학번을 확인해 주세요';
+        }
+        showAlert(title, msg, null, after);
+        loadSchedule();
+      })
+      .then(function(){
+        state.submitting = false; submitBtn.textContent = '신청서 제출'; updateFooter();
+      });
+  });
+
+  againBtn.addEventListener('click', function(){
+    form.reset();
+    document.querySelectorAll('.field.invalid').forEach(function(f){ f.classList.remove('invalid'); });
+    clearError();
+    state.wpName = null; state.picks = [];
+    form.classList.remove('hide'); footerBar.classList.remove('hide'); successWrap.classList.remove('show');
+    updateFooter(); loadSchedule();
+    window.scrollTo(0, 0);
+  });
+
+  updateFooter();
+  loadSchedule();
+})();
+</script>
+</body>
+</html>
